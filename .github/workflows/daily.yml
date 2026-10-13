@@ -15,10 +15,16 @@ jobs:
           python-version: '3.12'
       - name: 生成早报
         run: python3 morning_brief.py --out index.html
+      - name: 归档历史
+        run: |
+          DATE=$(date +%F)
+          mkdir -p history
+          cp index.html history/$DATE.html
+          python3 build_history.py
       - name: 提交更新
         run: |
           git config user.name "brief-bot"
           git config user.email "brief-bot@users.noreply.github.com"
-          git add index.html
+          git add index.html history.html history/ build_history.py
           git diff --cached --quiet || git commit -m "早报 $(date +%F)"
           git push
