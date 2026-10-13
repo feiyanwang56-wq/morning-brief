@@ -1,0 +1,24 @@
+name: 每日大宗商品早报
+on:
+  schedule:
+    - cron: '0 23 * * *'  # 每天 07:00 北京时间
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: 生成早报
+        run: python3 morning_brief.py --out index.html
+      - name: 提交更新
+        run: |
+          git config user.name "brief-bot"
+          git config user.email "brief-bot@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "早报 $(date +%F)"
+          git push
